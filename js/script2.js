@@ -1,4 +1,5 @@
 // ---------------------------------- VANNILA JS
+console.log('tjenahejsan');
 const sendBtn = document.getElementById('messageBtn');
 sendBtn.addEventListener('click', (event) => {
   event.preventDefault();
