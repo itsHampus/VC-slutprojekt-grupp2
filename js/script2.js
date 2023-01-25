@@ -1,24 +1,18 @@
 // ---------------------------------- VANNILA JS
-console.log('tjenahejsan');
 const sendBtn = document.getElementById('messageBtn');
 sendBtn.addEventListener('click', (event) => {
   event.preventDefault();
 
   const username = document.getElementById('usernameInput').value;
   const userContent = document.getElementById('userContentInput').value;
-
-  // console.log(userContent);
-
   writeUserData(username, userContent);
 })
 
-// -----------------------FIREBASE
+// ---------------------------------- FIREBASE
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-database.js";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getDatabase, ref, set, onValue, remove, push } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-database.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -33,28 +27,34 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
 const db = getDatabase(app);
 
-//Skriver
+//Skriver data till databasen
 function writeUserData(userID, userContent) {
-  set(ref(db, userID), {
+  push(ref(db, userID), { //Ska vara push
     username: userID,
     userContent: userContent
   });
 }
-// writeUserData();
+// Hämtar information från databasen varje gång ändring sker i root-mappen
 onValue(ref(db, '/'), (snapshot) => {
   snapshot.forEach((childSnapshot) => {
-    const data = childSnapshot.val();
-    console.log(childSnapshot.key);
-    const userPostContainer = document.createElement('div');
-    const userPostUsername = document.createElement('h1');
-    userPostUsername.innerText = data.username;
-    const userPostContent = document.createElement('p');
-    userPostContent.innerText = data.userContent;
-    userPostContainer.append(userPostContent, userPostUsername);
-    document.body.querySelector('#messageboardContainer').append(userPostContainer);
+    // const childData = childSnapshot.val();
+    // const childKey = childSnapshot.key;
+
+    childSnapshot.forEach( (childOfTheChildSnapshot)=>{
+
+      const childOfTheChildData = childOfTheChildSnapshot.val();
+      const childchildKey = childOfTheChildSnapshot.key;
+      
+      const userPostContainer = document.createElement('div');
+      const userPostUsername = document.createElement('h1');
+      userPostUsername.innerText = childOfTheChildData.username;
+      const userPostContent = document.createElement('p');
+      userPostContent.innerText = childOfTheChildData.userContent;
+      userPostContainer.append(userPostContent, userPostUsername);
+      document.body.querySelector('#messageboardContainer').append(userPostContainer);
+    } )
   })
 
 })
