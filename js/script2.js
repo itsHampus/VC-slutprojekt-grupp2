@@ -3,6 +3,10 @@ const sendBtn = document.getElementById('messageBtn');
 sendBtn.addEventListener('click', (event) => {
   event.preventDefault();
 
+  //Tömmer messageboard
+  dataArray = [];
+  document.body.querySelector('#messageboardContainer').innerHTML = '';
+
   const username = document.getElementById('usernameInput').value;
   const userContent = document.getElementById('userContentInput').value;
   writeUserData(username, userContent);
@@ -36,51 +40,41 @@ function writeUserData(userID, userContent) {
     userContent: userContent
   });
 }
+
+//Ska spara all content från databasen
+let dataArray = [];
+
 // Hämtar information från databasen varje gång ändring sker i root-mappen
 onValue(ref(db, '/'), (snapshot) => {
-  snapshot.forEach((childSnapshot) => {
-    // const childData = childSnapshot.val();
-    // const childKey = childSnapshot.key;
-
-    childSnapshot.forEach( (childOfTheChildSnapshot)=>{
+  snapshot.forEach((childSnapshot) => { 
+    childSnapshot.forEach((childOfTheChildSnapshot) => {
 
       const childOfTheChildData = childOfTheChildSnapshot.val();
-      const childchildKey = childOfTheChildSnapshot.key;
-      
-      const userPostContainer = document.createElement('div');
-      const userPostUsername = document.createElement('h1');
-      userPostUsername.innerText = childOfTheChildData.username;
-      const userPostContent = document.createElement('p');
-      userPostContent.innerText = childOfTheChildData.userContent;
-      userPostContainer.append(userPostContent, userPostUsername);
-      document.body.querySelector('#messageboardContainer').append(userPostContainer);
-    } )
+      const childOfTheChildKey = childOfTheChildSnapshot.key;
+
+      dataArray.push(childOfTheChildData);
+    })
   })
+  writeOnMessageboard();
+});
 
-})
+// console.log(dataArray);
 
-//Läser
-// onValue(ref(db, 'Hampus'), (snapshot) => {
-//   const data = snapshot.val();
-//   // alert(data.message);
+function writeOnMessageboard() {
+  for (let element in dataArray) {
+    console.log(dataArray[element]);
+    const userPostContainer = document.createElement('div');
+    const userPostUsername = document.createElement('h1');
+    userPostUsername.innerText = dataArray[element].username;
+    const userPostContent = document.createElement('p');
+    userPostContent.innerText = dataArray[element].userContent;
+    userPostContainer.append(userPostContent, userPostUsername);
+    document.body.querySelector('#messageboardContainer').append(userPostContainer);
+  }
+}
 
-// }, { onlyOnce: true });
-
-// onValue(ref(db, '/'), (snapshot) => { //root kolla alla namn i root
-//   snapshot.forEach((childSnapshot) => {
-//     const childKey = childSnapshot.key;
-//     const childData = childSnapshot.val();
-//     console.log(childKey, childData);
-//   });
-// }, {
-//   onlyOnce: true
-// });
-
-// onchange();
-
-// remove(ref(db, 'Thomas').then(()=>{
-//   console.log('thomas removed');
-// }));
+//Om du vill tömma databasen
+// remove(ref(db, '/'));
 
 
 
