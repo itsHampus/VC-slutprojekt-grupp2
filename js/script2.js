@@ -1,10 +1,16 @@
 // ---------------------------------- VANNILA JS
 const sendBtn = document.getElementById('messageBtn');
 sendBtn.addEventListener('click', (event) => {
-  event.preventDefault();
-  const username = document.getElementById('usernameInput').value;
-  const userContent = document.getElementById('userContentInput').value;
-  writeUserData(username, userContent);
+  //Kollar om User har fyllt i namn och ett meddelande
+  let isFormValid = document.getElementById('userInputForm').checkValidity();
+  if(!isFormValid){
+    document.getElementById('userInputForm').reportValidity();
+  }else{
+    event.preventDefault();
+    const username = document.getElementById('usernameInput').value;
+    const userContent = document.getElementById('userContentInput').value;
+    writeUserData(username, userContent);
+  }
 })
 
 // ---------------------------------- FIREBASE
