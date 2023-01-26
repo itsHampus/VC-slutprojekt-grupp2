@@ -2,11 +2,6 @@
 const sendBtn = document.getElementById('messageBtn');
 sendBtn.addEventListener('click', (event) => {
   event.preventDefault();
-
-  //Tömmer messageboard
-  dataArray = [];
-  document.body.querySelector('#messageboardContainer').innerHTML = '';
-
   const username = document.getElementById('usernameInput').value;
   const userContent = document.getElementById('userContentInput').value;
   writeUserData(username, userContent);
@@ -35,46 +30,44 @@ const db = getDatabase(app);
 
 //Skriver data till databasen
 function writeUserData(userID, userContent) {
-  push(ref(db, userID), { //Ska vara push
+  push(ref(db, userID), {
     username: userID,
     userContent: userContent
   });
 }
 
-//Ska spara all content från databasen
-let dataArray = [];
-
 // Hämtar information från databasen varje gång ändring sker i root-mappen
 onValue(ref(db, '/'), (snapshot) => {
-  snapshot.forEach((childSnapshot) => { 
-    childSnapshot.forEach((childOfTheChildSnapshot) => {
+  //Tömmer messageboard så meddelanden inte uppreppas
+  document.querySelector('#messageboardContainer').innerHTML = '';
 
+  snapshot.forEach((childSnapshot) => {
+    const childKey = childSnapshot.key;
+
+    childSnapshot.forEach((childOfTheChildSnapshot) => {
       const childOfTheChildData = childOfTheChildSnapshot.val();
       const childOfTheChildKey = childOfTheChildSnapshot.key;
 
-      dataArray.push(childOfTheChildData);
+      // console.log(childOfTheChildData, childOfTheChildKey);
+
+      const userPostContainer = document.createElement('div');
+      userPostContainer.id = 'userPostContainer';
+      const userPostUsername = document.createElement('h1');
+      userPostUsername.innerText = childOfTheChildData.username;
+      const userPostContent = document.createElement('p');
+      userPostContent.innerText = childOfTheChildData.userContent;
+      userPostContainer.append(userPostContent, userPostUsername);
+      document.body.querySelector('#messageboardContainer').append(userPostContainer);
+
+      //Klickar man på meddelandet så tas det bort
+      userPostContainer.addEventListener('click', () => {
+        console.log(childOfTheChildKey);
+        remove(ref(db, `${childKey}/${childOfTheChildKey}`));
+      })
     })
   })
-  writeOnMessageboard();
 });
 
-// console.log(dataArray);
-
-function writeOnMessageboard() {
-  for (let element in dataArray) {
-    console.log(dataArray[element]);
-    const userPostContainer = document.createElement('div');
-    const userPostUsername = document.createElement('h1');
-    userPostUsername.innerText = dataArray[element].username;
-    const userPostContent = document.createElement('p');
-    userPostContent.innerText = dataArray[element].userContent;
-    userPostContainer.append(userPostContent, userPostUsername);
-    document.body.querySelector('#messageboardContainer').append(userPostContainer);
-  }
-}
 
 //Om du vill tömma databasen
 // remove(ref(db, '/'));
-
-
-

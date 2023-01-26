@@ -5,3 +5,6 @@
     overflow: scroll;
 }
 
+#userPostContainer{
+    border: 2px solid black;
+}
